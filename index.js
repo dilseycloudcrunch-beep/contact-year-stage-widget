@@ -7,6 +7,13 @@ let ownerIdToName = {};    // maps Owner id -> Owner full name
 // Base URL to build direct links to individual Contact records
 const CONTACT_RECORD_BASE_URL = "https://crmplus.zoho.com/proctorgallagherinstitute/index.do/cxapp/crm/org908687475/tab/Contacts/";
 
+// ⚠️ CHECK THIS: agar tumhara "status" field ka actual API Name "Status" nahi hai
+// (Setup > Customization > Modules and Fields > Contacts me jaake verify karo),
+// toh neeche do jagah "Status" ko us exact API name se replace karo:
+//   1) fetchContactsForYear() ke andar COQL query mein
+//   2) renderStatuses() ke andar "contact.Status"
+const STATUS_FIELD_API_NAME = "Status"; // <-- ise apne field ke actual API name se update karo
+
 // Initialize Zoho Embedded App SDK
 ZOHO.embeddedApp.on("PageLoad", async function (data) {
   ZOHO.CRM.UI.Resize({ height: "700px", width: "50%" }).then(function () {
@@ -112,12 +119,13 @@ async function fetchContactsForYear(year) {
   const limit = 200;
   const maxOffset = 2000;
   const batchSize = 4;
+  let lastErrorMessage = null; // capture the actual COQL error so we can show it, not just console.log it
 
   async function fetchMonth(month) {
     const monthStr = String(month).padStart(2, "0");
     const lastDay = new Date(year, month, 0).getDate();
-    const startDate = `${year}-${monthStr}-01T00:00:00+00:00`;
-    const endDate = `${year}-${monthStr}-${lastDay}T23:59:59+00:00`;
+    const startDate = `${year}-${monthStr}-01T00:00:00+05:30`;
+    const endDate = `${year}-${monthStr}-${lastDay}T23:59:59+05:30`;
 
     const monthContacts = [];
     let offset = 0;
@@ -131,7 +139,7 @@ async function fetchContactsForYear(year) {
         break;
       }
 
-      const query = `select First_Name, Last_Name, Email, Phone, Status, Owner, Created_By, Created_Time from Contacts where Created_Time between '${startDate}' and '${endDate}' limit ${limit} offset ${offset}`;
+      const query = `select First_Name, Last_Name, Email, Phone, ${STATUS_FIELD_API_NAME}, Owner, Created_By, Created_Time from Contacts where Created_Time between '${startDate}' and '${endDate}' limit ${limit} offset ${offset}`;
 
       try {
         const response = await ZOHO.CRM.API.coql({ select_query: query });
@@ -145,7 +153,9 @@ async function fetchContactsForYear(year) {
         moreRecords = !!(response && response.info && response.info.more_records) && response.data && response.data.length === limit;
         offset += limit;
       } catch (err) {
+        // Pehle yeh error sirf console mein chhupa reh jaata tha - ab UI ke liye capture bhi kar rahe hain
         console.error(`Error fetching ${year}-${monthStr}:`, err);
+        lastErrorMessage = (err && err.message) ? err.message : JSON.stringify(err);
         break;
       }
     }
@@ -175,6 +185,9 @@ async function fetchContactsForYear(year) {
     if (allContacts.length > 0) {
       populateOwnerDropdown();
       renderStatuses();
+    } else if (lastErrorMessage) {
+      // Ab error hide nahi hoga - directly UI pe dikh jayega taaki field-name jaisi galti turant pakad sako
+      container.innerHTML = `<p>Error loading Contacts: ${lastErrorMessage}</p><p style="font-size:12px;color:#94a3b8;">Tip: check ki "${STATUS_FIELD_API_NAME}" Contacts module ka sahi API Name hai (Setup &gt; Customization &gt; Modules and Fields).</p>`;
     } else {
       container.innerHTML = `<p>No Contacts found for ${year}.</p>`;
     }
@@ -202,7 +215,7 @@ function renderStatuses() {
 
   contactsByStatus = {};
   filteredContacts.forEach(contact => {
-    const status = contact.Status || "Unassigned";
+    const status = contact[STATUS_FIELD_API_NAME] || "Unassigned";
     if (!contactsByStatus[status]) {
       contactsByStatus[status] = [];
     }
