@@ -101,7 +101,8 @@ function populateOwnerDropdown() {
   ownerSelect.addEventListener("change", renderStatuses);
 }
 
-// Fetch ONLY the selected year's Contacts using COQL (Created_Time range),
+// Fetch ONLY the selected year's Contacts using COQL (Created_Time range — the
+// actual date field; Created_By is only the user reference, not a date),
 // split month-by-month to stay under Zoho's 2000-offset limit per query.
 // Months are fetched in small parallel batches to balance speed vs rate limits.
 async function fetchContactsForYear(year) {
@@ -133,7 +134,7 @@ async function fetchContactsForYear(year) {
         break;
       }
 
-      const query = `select First_Name, Last_Name, Email, Phone, Lead_Status, Owner, Created_Time from Contacts where Created_Time between '${startDate}' and '${endDate}' limit ${limit} offset ${offset}`;
+      const query = `select First_Name, Last_Name, Email, Phone, Status, Owner, Created_By, Created_Time from Contacts where Created_Time between '${startDate}' and '${endDate}' limit ${limit} offset ${offset}`;
 
       try {
         const response = await ZOHO.CRM.API.coql({ select_query: query });
@@ -204,7 +205,7 @@ function renderStatuses() {
 
   contactsByStatus = {};
   filteredContacts.forEach(contact => {
-    const status = contact.Lead_Status || "Unassigned";
+    const status = contact.Status || "Unassigned";
     if (!contactsByStatus[status]) {
       contactsByStatus[status] = [];
     }
