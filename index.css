@@ -32,7 +32,6 @@ select {
   font-style: italic;
   color: #64748b;
 }
-
 /* Status Accordion - one below another */
 .status-container {
   display: flex;
@@ -75,7 +74,6 @@ select {
 .status-block.active .status-arrow {
   transform: rotate(90deg);
 }
-
 /* Contacts list, right below the clicked status */
 .contacts-list {
   display: none;
