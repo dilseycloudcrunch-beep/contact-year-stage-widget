@@ -249,8 +249,8 @@ function renderStatuses() {
       contactCard.innerHTML = `
         <div class="contact-name">${contactNameHtml}</div>
         <div class="contact-info">Email: ${contact.Email || "N/A"}</div>
-        <div class="contact-info">Phone: ${contact.Phone || "N/A"}</div>
-        <div class="contact-info">Owner: ${ownerName}</div>
+        <!-- <div class="contact-info">Phone: ${contact.Phone || "N/A"}</div> -->
+     <div class="contact-info">Owner: ${ownerName}</div>
       `;
       contactsList.appendChild(contactCard);
     });
