@@ -11,21 +11,18 @@
 <body>
   <div class="container">
     <h2>Contact Year Status View</h2>
-
     <!-- Year Dropdown Filter -->
     <div class="filter-section">
       <label for="yearSelect">Select Year: </label>
       <select id="yearSelect">
         <!-- Years will be populated dynamically via JS -->
       </select>
-
       <label for="ownerSelect" style="margin-left:15px;">Select Owner: </label>
       <select id="ownerSelect">
         <option value="All">All Owners</option>
         <!-- Owners will be populated dynamically via JS -->
       </select>
     </div>
-
     <!-- Status Accordion (each status row, contacts expand right below it) -->
     <div id="statusContainer" class="status-container">
       <p class="loading-text">Loading Contacts...</p>
