@@ -68,7 +68,6 @@ function populateYearDropdown() {
     if (year === currentYear) option.selected = true;
     yearSelect.appendChild(option);
   }
-  // Year change -> re-fetch only that year's data from CRM
   yearSelect.addEventListener("change", async function () {
     await fetchContactsForYear(getSelectedYear());
   });
@@ -101,10 +100,8 @@ function populateOwnerDropdown() {
   ownerSelect.addEventListener("change", renderStatuses);
 }
 
-// Fetch ONLY the selected year's Contacts using COQL (Created_Time range — the
-// actual date field; Created_By is only the user reference, not a date),
-// split month-by-month to stay under Zoho's 2000-offset limit per query.
-// Months are fetched in small parallel batches to balance speed vs rate limits.
+// Fetch ONLY the selected year's Contacts using COQL (Created_Time range —
+// the actual date field; Created_By is only a text/user reference, not a date)
 async function fetchContactsForYear(year) {
   const container = document.getElementById("statusContainer");
   container.innerHTML = `<p class="loading-text">Loading Contacts for ${year}...</p>`;
@@ -114,7 +111,7 @@ async function fetchContactsForYear(year) {
 
   const limit = 200;
   const maxOffset = 2000;
-  const batchSize = 4; // kitne months ek saath parallel chalenge (rate-limit safe)
+  const batchSize = 4;
 
   async function fetchMonth(month) {
     const monthStr = String(month).padStart(2, "0");
