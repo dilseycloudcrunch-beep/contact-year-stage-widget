@@ -7,11 +7,6 @@ let ownerIdToName = {};    // maps Owner id -> Owner full name
 // Base URL to build direct links to individual Contact records
 const CONTACT_RECORD_BASE_URL = "https://crmplus.zoho.com/proctorgallagherinstitute/index.do/cxapp/crm/org908687475/tab/Contacts/";
 
-// ⚠️ CHECK THIS: agar tumhara "status" field ka actual API Name "Status" nahi hai
-// (Setup > Customization > Modules and Fields > Contacts me jaake verify karo),
-// toh neeche do jagah "Status" ko us exact API name se replace karo:
-//   1) fetchContactsForYear() ke andar COQL query mein
-//   2) renderStatuses() ke andar "contact.Status"
 const STATUS_FIELD_API_NAME = "Status"; // <-- ise apne field ke actual API name se update karo
 
 // Initialize Zoho Embedded App SDK
